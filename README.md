@@ -1,52 +1,39 @@
-This is a Kotlin Multiplatform project targeting Android, iOS, Desktop (JVM).
+# Calory
 
-* [/composeApp](./composeApp/src) is for code that will be shared across your Compose Multiplatform applications.
-  It contains several subfolders:
-  - [commonMain](./composeApp/src/commonMain/kotlin) is for code that’s common for all targets.
-  - Other folders are for Kotlin code that will be compiled for only the platform indicated in the folder name.
-    For example, if you want to use Apple’s CoreCrypto for the iOS part of your Kotlin app,
-    the [iosMain](./composeApp/src/iosMain/kotlin) folder would be the right place for such calls.
-    Similarly, if you want to edit the Desktop (JVM) specific part, the [jvmMain](./composeApp/src/jvmMain/kotlin)
-    folder is the appropriate location.
+Calory is a Kotlin Multiplatform app for tracking what you eat and watching your daily macros. One codebase ships Android, desktop, and iOS builds while sharing the domain, data, and most UI.
 
-* [/iosApp](./iosApp/iosApp) contains iOS applications. Even if you’re sharing your UI with Compose Multiplatform,
-  you need this entry point for your iOS app. This is also where you should add SwiftUI code for your project.
+## What it does
+- Track consumed foods with weight, calories, proteins, fats, carbs, and day.
+- See daily lists and totals in a Compose-based UI.
+- Persist entries locally via SQLDelight; keeps domain logic shared across targets.
 
-* [/shared](./shared/src) is for the code that will be shared between all targets in the project.
-  The most important subfolder is [commonMain](./shared/src/commonMain/kotlin). If preferred, you
-  can add code to the platform-specific folders here too.
+## Tech stack
+- Kotlin Multiplatform with shared domain/data.
+- Compose Multiplatform UI (Android, Desktop; iOS host via Swift).
+- SQLDelight for schema-first database and typed queries.
+- Koin for dependency injection.
+- Coroutines for async work.
 
-### Build and Run Android Application
+## Project layout
+- `composeApp/`: UI entry points per platform; shared Compose screens in `composeApp/src/commonMain/kotlin/com/kurban/calory`.
+- `shared/`: domain and data layer, SQLDelight schemas in `shared/src/commonMain/sqldelight`, DI setup in `shared/src/commonMain/kotlin/com/kurban/calory/core/di`.
+- `iosApp/iosApp`: Xcode host project for iOS builds.
+- `gradle/libs.versions.toml`: version catalog for dependencies and plugins.
 
-To build and run the development version of the Android app, use the run configuration from the run widget
-in your IDE’s toolbar or build it directly from the terminal:
-- on macOS/Linux
-  ```shell
-  ./gradlew :composeApp:assembleDebug
-  ```
-- on Windows
-  ```shell
-  .\gradlew.bat :composeApp:assembleDebug
-  ```
+## Prerequisites
+- JDK 11+
+- Android Studio (for Android/Desktop) or Xcode (for iOS)
+- Gradle wrapper is included; no extra install needed.
 
-### Build and Run Desktop (JVM) Application
+## Run it locally
+- Android debug APK: `./gradlew :composeApp:assembleDebug`
+- Desktop app: `./gradlew :composeApp:run`
+- iOS: open `iosApp/iosApp` in Xcode, or `./gradlew :shared:linkDebugFrameworkIosSimulatorArm64`
 
-To build and run the development version of the desktop app, use the run configuration from the run widget
-in your IDE’s toolbar or run it directly from the terminal:
-- on macOS/Linux
-  ```shell
-  ./gradlew :composeApp:run
-  ```
-- on Windows
-  ```shell
-  .\gradlew.bat :composeApp:run
-  ```
+## Useful tasks
+- Shared checks/tests: `./gradlew :shared:check`
+- Regenerate SQLDelight after schema changes: `./gradlew generateSqlDelightInterface`
 
-### Build and Run iOS Application
-
-To build and run the development version of the iOS app, use the run configuration from the run widget
-in your IDE’s toolbar or open the [/iosApp](./iosApp) directory in Xcode and run it from there.
-
----
-
-Learn more about [Kotlin Multiplatform](https://www.jetbrains.com/help/kotlin-multiplatform-dev/get-started.html)…
+## Notes
+- Keep new dependencies in the version catalog (`gradle/libs.versions.toml`).
+- SQLDelight schemas live under `shared/src/commonMain/sqldelight/dbscheme/*`; queries must stay inside their package folders.
