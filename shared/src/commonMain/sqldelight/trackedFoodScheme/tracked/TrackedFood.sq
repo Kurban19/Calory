@@ -1,4 +1,4 @@
-CREATE TABLE TrackedFood(
+CREATE TABLE TrackedFoodEntity(
     id INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
     foodId INTEGER NOT NULL,
     name TEXT NOT NULL,
@@ -12,11 +12,11 @@ CREATE TABLE TrackedFood(
 );
 
 insertTrackedFood:
-INSERT INTO TrackedFood(foodId, name, grams, calories, proteins, fats, carbs, dayId, timestamp)
+INSERT INTO TrackedFoodEntity(foodId, name, grams, calories, proteins, fats, carbs, dayId, timestamp)
 VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?);
 
 selectTrackedByDay:
-SELECT * FROM TrackedFood WHERE dayId = ? ORDER BY timestamp DESC;
+SELECT * FROM TrackedFoodEntity WHERE dayId = ? ORDER BY timestamp DESC;
 
 deleteTracked:
-DELETE FROM TrackedFood WHERE id = ?;
+DELETE FROM TrackedFoodEntity WHERE id = ?;

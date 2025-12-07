@@ -1,4 +1,4 @@
-CREATE TABLE Food(
+CREATE TABLE FoodEntity(
     id INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
     name TEXT NOT NULL,
     calories REAL NOT NULL,
@@ -8,14 +8,14 @@ CREATE TABLE Food(
 );
 
 count:
-SELECT COUNT(*) FROM Food;
+SELECT COUNT(*) FROM FoodEntity;
 
 insertFood:
-INSERT INTO Food(name, calories, proteins, fats, carbs)
+INSERT INTO FoodEntity(name, calories, proteins, fats, carbs)
 VALUES (?, ?, ?, ?, ?);
 
 findByName:
-SELECT * FROM Food WHERE LOWER(name) = LOWER(?);
+SELECT * FROM FoodEntity WHERE LOWER(name) = LOWER(?);
 
 search:
-SELECT * FROM Food WHERE LOWER(name) LIKE LOWER(?);
+SELECT * FROM FoodEntity WHERE LOWER(name) LIKE LOWER(?);

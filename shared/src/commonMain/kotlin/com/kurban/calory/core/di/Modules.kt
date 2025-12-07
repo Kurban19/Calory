@@ -18,6 +18,8 @@ import com.kurban.calory.features.main.domain.GetTrackedForDayUseCase
 import com.kurban.calory.features.main.domain.SearchFoodUseCase
 import com.kurban.calory.features.main.domain.TrackedFoodRepository
 import com.kurban.calory.features.main.ui.MainViewModel
+import com.kurban.calory.core.time.DayProvider
+import com.kurban.calory.core.time.DefaultDayProvider
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.IO
 import org.koin.core.qualifier.named
@@ -53,14 +55,15 @@ fun dataModule(driverFactory: DatabaseDriverFactory) = module {
 val domainModule = module {
 
     single { AppDispatchers(io = Dispatchers.IO, main = Dispatchers.Main, default = Dispatchers.Default) }
+    single<DayProvider> { DefaultDayProvider() }
 
     factory { SearchFoodUseCase(get(), get<AppDispatchers>().io) }
     factory { DeleteConsumedFoodUseCase(get(), get<AppDispatchers>().io) }
-    factory { AddTrackedFoodUseCase(get(), get(), get<AppDispatchers>().io) }
+    factory { AddTrackedFoodUseCase(get(), get(), get(), get<AppDispatchers>().io) }
     factory { GetTrackedForDayUseCase(get(), get<AppDispatchers>().io) }
     factory { DeleteTrackedFoodUseCase(get(), get<AppDispatchers>().io) }
 }
 
 val uiModule = module {
-    factory { MainViewModel(get(), get(), get(), get(), get()) }
+    factory { MainViewModel(get(), get(), get(), get(), get(), get()) }
 }

@@ -2,22 +2,21 @@ package com.kurban.calory.features.main.domain
 
 import com.kurban.calory.core.domain.CoroutineUseCase
 import com.kurban.calory.features.main.domain.model.TrackedFood
+import com.kurban.calory.core.time.DayProvider
 import kotlinx.coroutines.CoroutineDispatcher
-import kotlinx.datetime.Clock
-import kotlinx.datetime.TimeZone
-import kotlinx.datetime.toLocalDateTime
 
 class AddTrackedFoodUseCase(
     private val repository: TrackedFoodRepository,
     private val foodRepository: FoodRepository,
+    private val dayProvider: DayProvider,
     dispatcher: CoroutineDispatcher
 ) : CoroutineUseCase<AddTrackedFoodUseCase.Parameters, AddTrackedFoodUseCase.Result>(dispatcher) {
 
     override suspend fun execute(parameters: Parameters): Result {
         val base = foodRepository.findFood(parameters.foodName) ?: return Result.Error("Продукт не найден")
         val factor = parameters.grams / 100.0
-        val now = Clock.System.now()
-        val dayId = now.toLocalDateTime(TimeZone.currentSystemDefault()).date.toString()
+        val now = kotlinx.datetime.Clock.System.now()
+        val dayId = dayProvider.currentDayId()
 
         val consumed = TrackedFood(
             id = 0L,
