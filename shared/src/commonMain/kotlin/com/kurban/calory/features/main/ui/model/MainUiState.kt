@@ -12,6 +12,5 @@ data class MainUiState(
     val totalCalories: Double = 0.0,
     val totalProteins: Double = 0.0,
     val totalFats: Double = 0.0,
-    val totalCarbs: Double = 0.0,
-    val error: String? = null
+    val totalCarbs: Double = 0.0
 )

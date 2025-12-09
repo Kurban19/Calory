@@ -38,9 +38,12 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -75,6 +78,8 @@ import com.kurban.calory.features.main.domain.model.Food
 import com.kurban.calory.features.main.ui.model.UITrackedFood
 import com.kurban.calory.features.main.ui.model.MainUiState
 import com.kurban.calory.features.main.ui.MainViewModel
+import com.kurban.calory.features.main.ui.model.MainEffect
+import com.kurban.calory.features.main.ui.model.MainIntent
 import org.jetbrains.compose.resources.ExperimentalResourceApi
 import org.jetbrains.compose.resources.stringResource
 import org.jetbrains.compose.ui.tooling.preview.Preview
@@ -88,15 +93,27 @@ fun MainScreen(
 ) {
     val viewModel = koinViewModel<MainViewModel>()
     val state by viewModel.uiState.collectAsState()
+    var errorMessage by remember { mutableStateOf<String?>(null) }
+
+    LaunchedEffect(viewModel) {
+        viewModel.effects.collect { effect ->
+            when (effect) {
+                is MainEffect.Error -> errorMessage = effect.message
+            }
+        }
+    }
 
     MainContent(
         state = state,
-        onQueryChanged = viewModel::onQueryChanged,
-        onSelectFood = viewModel::onFoodSelected,
-        onGramsChanged = viewModel::onGramsChanged,
-        onAddFood = viewModel::addSelectedFood,
-        onRemoveEntry = viewModel::removeEntry,
-        onErrorDismiss = viewModel::clearError,
+        errorMessage = errorMessage,
+        onQueryChanged = { viewModel.dispatch(MainIntent.QueryChanged(it)) },
+        onSelectFood = { viewModel.dispatch(MainIntent.FoodSelected(it)) },
+        onGramsChanged = { viewModel.dispatch(MainIntent.GramsChanged(it)) },
+        onAddFood = { viewModel.dispatch(MainIntent.AddSelectedFood) },
+        onRemoveEntry = { viewModel.dispatch(MainIntent.RemoveEntry(it)) },
+        onErrorDismiss = {
+            viewModel.dispatch(MainIntent.ClearError)
+        },
         modifier = modifier
     )
 }
@@ -105,6 +122,7 @@ fun MainScreen(
 @Composable
 private fun MainContent(
     state: MainUiState,
+    errorMessage: String?,
     modifier: Modifier = Modifier,
     onQueryChanged: (String) -> Unit,
     onSelectFood: (Food) -> Unit,
@@ -166,14 +184,14 @@ private fun MainContent(
                 }
 
                 AnimatedVisibility(
-                    visible = state.error != null,
+                    visible = errorMessage != null,
                     modifier = Modifier
                         .align(Alignment.BottomCenter)
                         .padding(16.dp),
                     enter = fadeIn(animationSpec = tween(250, easing = FastOutSlowInEasing)),
                     exit = fadeOut(animationSpec = tween(250, easing = FastOutSlowInEasing))
                 ) {
-                    ErrorCard(message = state.error.orEmpty(), onDismiss = onErrorDismiss)
+                    ErrorCard(message = errorMessage.orEmpty(), onDismiss = onErrorDismiss)
                 }
             }
         }
@@ -569,6 +587,7 @@ fun MainScreenPreview() {
 
     MainContent(
         state = previewState,
+        errorMessage = null,
         onQueryChanged = {},
         onSelectFood = {},
         onGramsChanged = {},
