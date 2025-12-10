@@ -18,10 +18,6 @@ import com.kurban.calory.features.main.ui.model.MainAction
 import com.kurban.calory.features.main.ui.model.MainEffect
 import com.kurban.calory.features.main.ui.model.MainIntent
 import com.kurban.calory.features.main.ui.model.MainUiState
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.SupervisorJob
-import kotlinx.coroutines.cancel
-import kotlinx.coroutines.plus
 import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.StateFlow
 
@@ -43,15 +39,12 @@ class MainViewModel(
             AddFoodMiddleware(addTrackedFoodUseCase),
             RemoveEntryMiddleware(deleteTrackedFood, dayProvider)
         ),
-        scope = viewModelScope
+        scope = viewModelScope,
+        initialActions = listOf(MainAction.LoadDay(dayProvider.currentDayId()))
     )
 
     val uiState: StateFlow<MainUiState> = store.state
     val effects: SharedFlow<MainEffect> = store.effects
-
-    init {
-        dispatch(MainIntent.LoadToday)
-    }
 
     fun dispatch(intent: MainIntent) {
         when (intent) {

@@ -24,12 +24,17 @@ class Store<S, A, E>(
     private val reducer: Reducer<S, A>,
     private val middlewares: List<Middleware<S, A, E>>,
     private val scope: CoroutineScope,
+    initialActions: List<A> = emptyList(),
 ) {
     private val _state = MutableStateFlow(initialState)
     val state: StateFlow<S> = _state.asStateFlow()
 
-    private val _effects = MutableSharedFlow<E>()
+    private val _effects = MutableSharedFlow<E>(replay = 0)
     val effects: SharedFlow<E> = _effects.asSharedFlow()
+
+    init {
+        initialActions.forEach { dispatch(it) }
+    }
 
     fun dispatch(action: A) {
         scope.launch {
